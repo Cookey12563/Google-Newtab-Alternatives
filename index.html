@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Google</title>
+  <style>
+    :root {
+      --bg: #fff;
+      --text: #202124;
+      --muted: #5f6368;
+      --border: #dadce0;
+      --input-bg: #fff;
+      --hover: #f1f3f4;
+      --panel: #fff;
+      --blue: #1a73e8;
+      --shadow: 0 1px 6px rgba(32,33,36,.28);
+      color-scheme: light;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #202124;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --border: #5f6368;
+      --input-bg: #303134;
+      --hover: #303134;
+      --panel: #303134;
+      --blue: #8ab4f8;
+      --shadow: 0 1px 6px rgba(0,0,0,.6);
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Google Sans", "Product Sans", Roboto, Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+    }
+
+    .g-logo { width: 30px; height: 30px; flex: none; }
+
+    .address {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    .address:focus {
+      border-color: var(--blue);
+      box-shadow: var(--shadow);
+    }
+
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .icon-button:hover { background: var(--hover); }
+
+    .theme-button {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .theme-button:hover { background: var(--hover); }
+
+    .signin {
+      padding: 9px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    html[data-theme="dark"] .signin { color: #202124; }
+
+    /* Waffle panel, adapted from EmberTail */
+    .header-right {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .waffle {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      display: grid;
+      place-items: center;
+    }
+
+    .waffle:hover { background: var(--hover); }
+
+    .dots {
+      display: grid;
+      grid-template-columns: repeat(3, 4px);
+      gap: 3px;
+    }
+
+    .dots i {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .panel {
+      position: absolute;
+      right: 0;
+      top: 50px;
+      width: min(360px, calc(100vw - 32px));
+      max-height: calc(100vh - 100px);
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.25);
+      z-index: 20;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .panel h2 { font-size: 18px; margin: 0; }
+
+    .small {
+      background: var(--hover);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .hint {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .apps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tile {
+      border-radius: 12px;
+      padding: 10px 4px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .tile:hover { background: var(--hover); }
+
+    .tile a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      font-size: 20px;
+      overflow: hidden;
+    }
+
+    .icon img {
+      width: 26px;
+      height: 26px;
+      display: block;
+    }
+
+    .moves { display: none; justify-content: center; gap: 5px; margin-top: 8px; }
+    .editing .moves { display: flex; }
+    .editing .tile { border: 1px dashed var(--border); cursor: grab; }
+    .editing .tile a { pointer-events: none; }
+    .dragging { opacity: .4; }
+    .over { background: var(--hover) !important; }
+
+    .status {
+      margin: 10px 0;
+      font-size: 12px;
+      color: var(--blue);
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .center { width: min(584px, 100%); text-align: center; }
+
+    .big-logo { width: min(272px, 70vw); margin-bottom: 28px; }
+
+    .search {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: transparent;
+      box-shadow: var(--shadow);
+    }
+
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .action {
+      padding: 10px 18px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: var(--hover);
+      color: var(--text);
+    }
+
+    .action:hover {
+      border-color: var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    }
+
+    .error { color: #d93025; margin-top: 14px; min-height: 20px; }
+    html[data-theme="dark"] .error { color: #f28b82; }
+
+    .note {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <svg class="g-logo" viewBox="0 0 48 48" aria-label="Google">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+    </svg>
+
+    <input id="address" class="address" type="text"
+           placeholder="Search Google or type a URL"
+           autocomplete="off" spellcheck="false">
+
+    <div class="header-right">
+      <button id="waffle" class="waffle" type="button"
+              aria-label="Google apps" aria-expanded="false"
+              aria-controls="panel">
+        <span class="dots" aria-hidden="true">
+          <i></i><i></i><i></i>
+          <i></i><i></i><i></i>
+          <i></i><i></i><i></i>
+        </span>
+      </button>
+
+      <section id="panel" class="panel" hidden aria-label="Google apps launcher">
+        <div class="panel-head">
+          <h2>Google apps</h2>
+          <button id="arrange" class="small" type="button" aria-pressed="false">Arrange</button>
+        </div>
+
+        <p class="hint">
+          Choose Arrange to move apps with the arrows. Your order is saved.
+        </p>
+
+        <div id="apps" class="apps"></div>
+        <p id="status" class="status" role="status"></p>
+
+        <button id="reset" class="small" type="button">Reset order</button>
+      </section>
+
+      <button class="theme-button" id="themeToggle" title="Change theme">◐</button>
+      <button class="signin" id="signin" type="button">Sign in</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="center">
+      <svg class="big-logo" viewBox="0 0 272 92" aria-label="Google">
+        <path fill="#EA4335" d="M115.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18C71.25 34.32 81.24 25 93.5 25s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44S80.99 39.2 80.99 47.18c0 7.9 5.79 13.44 12.51 13.44s12.51-5.54 12.51-13.44z"/>
+        <path fill="#FBBC05" d="M163.75 47.18c0 12.77-9.99 22.18-22.25 22.18s-22.25-9.41-22.25-22.18c0-12.85 9.99-22.18 22.25-22.18s22.25 9.32 22.25 22.18zm-9.74 0c0-7.98-5.79-13.44-12.51-13.44s-12.51 5.46-12.51 13.44c0 7.9 5.79 13.44 12.51 13.44s12.51-5.54 12.51-13.44z"/>
+        <path fill="#4285F4" d="M209.75 26.34v39.82c0 16.38-9.66 23.07-21.08 23.07-10.75 0-17.22-7.19-19.66-13.07l8.48-3.53c1.51 3.61 5.21 7.87 11.17 7.87 7.31 0 11.84-4.51 11.84-13v-3.19h-.34c-2.18 2.69-6.38 5.04-11.68 5.04-11.09 0-21.25-9.66-21.25-22.09 0-12.52 10.16-22.26 21.25-22.26 5.29 0 9.49 2.35 11.68 4.96h.34v-3.61h9.25zm-8.56 20.92c0-7.81-5.21-13.52-11.84-13.52-6.72 0-12.35 5.71-12.35 13.52 0 7.73 5.63 13.36 12.35 13.36 6.63 0 11.84-5.63 11.84-13.36z"/>
+        <path fill="#34A853" d="M225 3v65h-9.5V3h9.5z"/>
+        <path fill="#EA4335" d="M262.02 54.48l7.56 5.04c-2.44 3.61-8.32 9.83-18.48 9.83-12.6 0-22.01-9.74-22.01-22.18 0-13.19 9.49-22.18 20.92-22.18 11.51 0 17.14 9.16 18.98 14.11l1.01 2.52-29.65 12.28c2.27 4.45 5.8 6.72 10.75 6.72 4.96 0 8.4-2.44 10.92-6.14zm-23.27-7.98l19.82-8.23c-1.09-2.77-4.37-4.7-8.23-4.7-4.95 0-11.84 4.37-11.59 12.93z"/>
+        <path fill="#4285F4" d="M35.29 41.41V32H67c.31 1.64.47 3.58.47 5.68 0 7.06-1.93 15.79-8.15 22.01-6.05 6.3-13.78 9.66-24.02 9.66C16.32 69.35.36 53.89.36 34.91.36 15.93 16.32.47 35.3.47c10.5 0 17.98 4.12 23.6 9.49l-6.64 6.64c-4.03-3.78-9.49-6.72-16.97-6.72-13.86 0-24.7 11.17-24.7 25.03 0 13.86 10.84 25.03 24.7 25.03 8.99 0 14.11-3.61 17.39-6.89 2.66-2.66 4.41-6.46 5.1-11.65l-22.49.01z"/>
+      </svg>
+
+      <form id="searchForm">
+        <input id="search" class="search" type="text"
+               placeholder="Search Google"
+               autocomplete="off" spellcheck="false">
+        <div class="actions">
+          <button class="action" type="submit">Google Search</button>
+          <button class="action" type="button" id="lucky">I’m Feeling Lucky</button>
+        </div>
+      </form>
+
+      <p id="error" class="error" role="alert"></p>
+    </div>
+  </main>
+
+  <script>
+    const defaults = [
+      ["Google", "https://www.google.com/", "🔎"],
+      ["YouTube", "https://www.youtube.com/", "▶️"],
+      ["Drive", "https://drive.google.com/", "📁"],
+      ["Docs", "https://docs.google.com/", "📄"],
+      ["Gmail", "https://mail.google.com/", "✉️"],
+      ["Maps", "https://maps.google.com/", "📍"],
+      ["Calendar", "https://calendar.google.com/", "📅"],
+      ["Photos", "https://photos.google.com/", "🌸"],
+      ["Sheets", "https://sheets.google.com/", "📊"],
+      ["Slides", "https://slides.google.com/", "📋"],
+      ["Meet", "https://meet.google.com/", "📹"],
+      ["Translate", "https://translate.google.com/", "🌐"],
+      ["Wikipedia", "https://www.wikipedia.org/", "📚"],
+      ["Khan Academy", "https://www.khanacademy.org/", "🎓"],
+      ["Duolingo", "https://www.duolingo.com/", "🦉"],
+      ["Reddit", "https://www.reddit.com/", "💬"],
+      ["Discord", "https://discord.com/app", "🎮"],
+      ["Instagram", "https://www.instagram.com/", "📸"],
+      ["GitHub", "https://github.com/", "🐙"],
+      ["Perplexity", "https://www.perplexity.ai/", "🔍"]
+    ].map((app, index) => ({
+      id: String(index),
+      name: app[0],
+      url: app[1],
+      emoji: app[2],
+      domain: new URL(app[1]).hostname
+    }));
+
+    const storageKey = "google-launcher-app-order";
+    let order = defaults.map(app => app.id);
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey));
+      if (Array.isArray(saved)) {
+        order = [...new Set(saved.filter(id => defaults.some(app => app.id === id)))];
+        defaults.forEach(app => {
+          if (!order.includes(app.id)) order.push(app.id);
+        });
+      }
+    } catch {}
+
+    const grid = document.getElementById("apps");
+    const panel = document.getElementById("panel");
+    const waffle = document.getElementById("waffle");
+    const arrangeButton = document.getElementById("arrange");
+    const status = document.getElementById("status");
+    const themeToggle = document.getElementById("themeToggle");
+
+    let editing = false;
+
+    function faviconUrl(domain) {
+      return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
+    }
+
+    function tile(id, controls) {
+      const app = defaults.find(app => app.id === id);
+      const element = document.createElement("div");
+      element.className = "tile";
+      element.dataset.id = id;
+
+      const link = document.createElement("a");
+      link.href = app.url;
+
+      const icon = document.createElement("span");
+      icon.className = "icon";
+      icon.textContent = app.emoji;
+
+      const image = document.createElement("img");
+      image.src = faviconUrl(app.domain);
+      image.alt = "";
+      image.loading = "lazy";
+      image.addEventListener("error", () => {
+        image.remove();
+        icon.textContent = app.emoji;
+      });
+      image.addEventListener("load", () => {
+        icon.textContent = "";
+        icon.appendChild(image);
+      });
+
+      const label = document.createElement("span");
+      label.textContent = app.name;
+
+      link.append(icon, label);
+      element.append(link);
+
+      if (controls) {
+        const moves = document.createElement("div");
+        moves.className = "moves";
+
+        for (const [symbol, direction] of [["←", -1], ["→", 1]]) {
+          const button = document.createElement("button");
+          const destination = order.indexOf(id) + direction;
+
+          button.type = "button";
+          button.className = "small";
+          button.textContent = symbol;
+          button.disabled = destination < 0 || destination >= order.length;
+          button.addEventListener("click", () => {
+            move(id, destination);
+          });
+
+          moves.append(button);
+        }
+
+        element.append(moves);
+      }
+
+      return element;
+    }
+
+    function render() {
+      grid.replaceChildren(...order.map(id => tile(id, true)));
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(order));
+        status.textContent = "Order saved.";
+      } catch {
+        status.textContent = "Order changed, but browser storage is unavailable.";
+      }
+    }
+
+    function move(id, destination) {
+      const source = order.indexOf(id);
+      if (source < 0 || destination < 0 || destination >= order.length || source === destination) return;
+
+      order.splice(source, 1);
+      order.splice(destination, 0, id);
+      render();
+      save();
+    }
+
+    function closePanel() {
+      panel.hidden = true;
+      waffle.setAttribute("aria-expanded", "false");
+    }
+
+    waffle.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      waffle.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+
+    document.addEventListener("click", event => {
+      if (!panel.contains(event.target) && !waffle.contains(event.target)) closePanel();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !panel.hidden) {
+        closePanel();
+        waffle.focus();
+      }
+    });
+
+    arrangeButton.addEventListener("click", () => {
+      editing = !editing;
+      panel.classList.toggle("editing", editing);
+      arrangeButton.textContent = editing ? "Done" : "Arrange";
+      arrangeButton.setAttribute("aria-pressed", String(editing));
+      render();
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      order = defaults.map(app => app.id);
+      render();
+      save();
+    });
+
+    // Theme
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem("theme", theme);
+      themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+    }
+
+    const savedTheme = localStorage.getItem("theme");
+    const systemTheme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    applyTheme(savedTheme || systemTheme);
+
+    themeToggle.addEventListener("click", () => {
+      applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+    });
+
+    document.getElementById("signin").addEventListener("click", () => {});
+
+    // Search and address bar
+    const address = document.getElementById("address");
+    const search = document.getElementById("search");
+    const error = document.getElementById("error");
+
+    function looksLikeUrl(text) {
+      return /^[a-z][a-z0-9+.-]*:/i.test(text) ||
+             /^(localhost(:\d+)?|(\d{1,3}\.){3}\d{1,3})(\/|$)/i.test(text) ||
+             /^[^\s]+\.[a-z]{2,}(\/|$|\?|#)/i.test(text);
+    }
+
+    function normalizeUrl(text) {
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(text)) text = "https://" + text;
+      const url = new URL(text);
+      if (!["http:", "https:"].includes(url.protocol)) {
+        throw new Error("Only HTTP and HTTPS URLs are allowed.");
+      }
+      return url.href;
+    }
+
+    function goTo(destination) {
+      window.location.assign(destination);
+    }
+
+    function googleSearch(query, lucky = false) {
+      const params = new URLSearchParams({ q: query });
+      if (lucky) params.set("btnI", "1");
+      goTo("https://www.google.com/search?" + params.toString());
+    }
+
+    function handleAddress() {
+      error.textContent = "";
+      const text = address.value.trim();
+      if (!text) return;
+
+      if (looksLikeUrl(text)) {
+        try {
+          goTo(normalizeUrl(text));
+        } catch (e) {
+          error.textContent = e.message || "Enter a valid HTTP or HTTPS website URL.";
+        }
+        return;
+      }
+
+      googleSearch(text);
+    }
+
+    address.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleAddress();
+      }
+    });
+
+    document.getElementById("searchForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const query = search.value.trim();
+      if (query) googleSearch(query);
+    });
+
+    document.getElementById("lucky").addEventListener("click", () => {
+      const query = search.value.trim();
+      if (query) googleSearch(query, true);
+    });
+
+    render();
+  </script>
+</body>
+</html>

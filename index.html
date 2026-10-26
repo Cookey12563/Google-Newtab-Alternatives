@@ -71,43 +71,6 @@
       box-shadow: var(--shadow);
     }
 
-    .icon-button {
-      width: 40px;
-      height: 40px;
-      display: grid;
-      place-items: center;
-      border: 0;
-      border-radius: 50%;
-      background: transparent;
-      color: var(--muted);
-    }
-
-    .icon-button:hover { background: var(--hover); }
-
-    .theme-button {
-      width: 40px;
-      height: 40px;
-      border: 0;
-      border-radius: 50%;
-      background: transparent;
-      color: var(--muted);
-      font-size: 18px;
-    }
-
-    .theme-button:hover { background: var(--hover); }
-
-    .signin {
-      padding: 9px 18px;
-      border: 0;
-      border-radius: 6px;
-      background: var(--blue);
-      color: #fff;
-      font-weight: 500;
-    }
-
-    html[data-theme="dark"] .signin { color: #202124; }
-
-    /* Waffle panel, adapted from EmberTail */
     .header-right {
       position: relative;
       display: flex;
@@ -144,7 +107,7 @@
       position: absolute;
       right: 0;
       top: 50px;
-      width: min(360px, calc(100vw - 32px));
+      width: min(380px, calc(100vw - 32px));
       max-height: calc(100vh - 100px);
       overflow: auto;
       background: var(--panel);
@@ -204,20 +167,21 @@
     }
 
     .icon {
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       display: grid;
       place-items: center;
       border-radius: 12px;
       background: var(--input-bg);
       border: 1px solid var(--border);
-      font-size: 20px;
+      font-size: 22px;
       overflow: hidden;
     }
 
     .icon img {
-      width: 26px;
-      height: 26px;
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
       display: block;
     }
 
@@ -225,8 +189,6 @@
     .editing .moves { display: flex; }
     .editing .tile { border: 1px dashed var(--border); cursor: grab; }
     .editing .tile a { pointer-events: none; }
-    .dragging { opacity: .4; }
-    .over { background: var(--hover) !important; }
 
     .status {
       margin: 10px 0;
@@ -244,6 +206,11 @@
     .center { width: min(584px, 100%); text-align: center; }
 
     .big-logo { width: min(272px, 70vw); margin-bottom: 28px; }
+
+    /* Dark mode: all letters of the large Google wordmark are white. */
+    html[data-theme="dark"] .big-logo path {
+      fill: #ffffff !important;
+    }
 
     .search {
       width: 100%;
@@ -281,14 +248,31 @@
       box-shadow: 0 1px 3px rgba(0,0,0,.15);
     }
 
+    .theme-button {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .theme-button:hover { background: var(--hover); }
+
+    .signin {
+      padding: 9px 18px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    html[data-theme="dark"] .signin { color: #202124; }
+
     .error { color: #d93025; margin-top: 14px; min-height: 20px; }
     html[data-theme="dark"] .error { color: #f28b82; }
-
-    .note {
-      margin-top: 22px;
-      color: var(--muted);
-      font-size: 13px;
-    }
 
     [hidden] { display: none !important; }
   </style>
@@ -323,9 +307,7 @@
           <button id="arrange" class="small" type="button" aria-pressed="false">Arrange</button>
         </div>
 
-        <p class="hint">
-          Choose Arrange to move apps with the arrows. Your order is saved.
-        </p>
+        <p class="hint">Choose Arrange to move apps with the arrows. Your order is saved.</p>
 
         <div id="apps" class="apps"></div>
         <p id="status" class="status" role="status"></p>
@@ -368,10 +350,10 @@
       ["Google", "https://www.google.com/", "🔎"],
       ["YouTube", "https://www.youtube.com/", "▶️"],
       ["Drive", "https://drive.google.com/", "📁"],
-      ["Docs", "https://docs.google.com/", "📄"],
-      ["Gmail", "https://mail.google.com/", "✉️"],
+      ["Docs", "https://docs.google.com/", "📄", "https://www.gstatic.com/images/branding/product/1x/docs_2020q4_48dp.png"],
+      ["Gmail", "https://mail.google.com/", "✉️", "https://www.gstatic.com/images/branding/product/1x/gmail_2020q4_48dp.png"],
       ["Maps", "https://maps.google.com/", "📍"],
-      ["Calendar", "https://calendar.google.com/", "📅"],
+      ["Calendar", "https://calendar.google.com/", "📅", "https://www.gstatic.com/images/branding/product/1x/calendar_2020q4_48dp.png"],
       ["Photos", "https://photos.google.com/", "🌸"],
       ["Sheets", "https://sheets.google.com/", "📊"],
       ["Slides", "https://slides.google.com/", "📋"],
@@ -380,26 +362,51 @@
       ["Wikipedia", "https://www.wikipedia.org/", "📚"],
       ["Khan Academy", "https://www.khanacademy.org/", "🎓"],
       ["Duolingo", "https://www.duolingo.com/", "🦉"],
+      ["Internet Archive", "https://archive.org/", "🏛️"],
       ["Reddit", "https://www.reddit.com/", "💬"],
       ["Discord", "https://discord.com/app", "🎮"],
       ["Instagram", "https://www.instagram.com/", "📸"],
+      ["Facebook", "https://www.facebook.com/", "👥"],
+      ["WhatsApp", "https://web.whatsapp.com/", "📱", "https://commons.wikimedia.org/wiki/Special:FilePath/WhatsApp.svg"],
+      ["TikTok", "https://www.tiktok.com/", "🎵"],
+      ["Pinterest", "https://www.pinterest.com/", "📌"],
+      ["Spotify", "https://open.spotify.com/", "🎧"],
+      ["Netflix", "https://www.netflix.com/", "🍿"],
+      ["Twitch", "https://www.twitch.tv/", "🟣"],
+      ["Amazon", "https://www.amazon.com/", "📦"],
+      ["eBay", "https://www.ebay.com/", "🏷️"],
+      ["Etsy", "https://www.etsy.com/", "🧶"],
+      ["Canva", "https://www.canva.com/", "🎨"],
+      ["Notion", "https://www.notion.so/", "📝"],
       ["GitHub", "https://github.com/", "🐙"],
-      ["Perplexity", "https://www.perplexity.ai/", "🔍"]
+      ["ChatGPT", "https://chatgpt.com/", "🤖"],
+      ["Perplexity", "https://www.perplexity.ai/", "🔍"],
+      ["Claude", "https://claude.ai/", "✨"],
+      ["Weather", "https://www.weather.gov/", "🌤️"],
+      ["Speedtest", "https://www.speedtest.net/", "⚡"],
+      ["Poki", "https://poki.com/", "🧿"],
+      ["Crazy Games", "https://www.crazygames.com/", "👾"],
+      ["now.gg", "https://now.gg/", "🟢"],
+      ["Cool Math Games", "https://www.coolmathgames.com/", "🧮"],
+      ["Eaglercraft", "https://eaglercraftcentral.vercel.app/", "🧱", "https://commons.wikimedia.org/wiki/Special:Redirect/file/Grass_block_stylized.svg?width=240"]
     ].map((app, index) => ({
       id: String(index),
       name: app[0],
       url: app[1],
       emoji: app[2],
+      customIcon: app[3] || null,
       domain: new URL(app[1]).hostname
     }));
 
-    const storageKey = "google-launcher-app-order";
+    const storageKey = "google-launcher-app-order-v4";
     let order = defaults.map(app => app.id);
 
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey));
+
       if (Array.isArray(saved)) {
         order = [...new Set(saved.filter(id => defaults.some(app => app.id === id)))];
+
         defaults.forEach(app => {
           if (!order.includes(app.id)) order.push(app.id);
         });
@@ -433,16 +440,18 @@
       icon.textContent = app.emoji;
 
       const image = document.createElement("img");
-      image.src = faviconUrl(app.domain);
+      image.src = app.customIcon || faviconUrl(app.domain);
       image.alt = "";
       image.loading = "lazy";
-      image.addEventListener("error", () => {
-        image.remove();
-        icon.textContent = app.emoji;
-      });
+
       image.addEventListener("load", () => {
         icon.textContent = "";
         icon.appendChild(image);
+      });
+
+      image.addEventListener("error", () => {
+        image.remove();
+        icon.textContent = app.emoji;
       });
 
       const label = document.createElement("span");
@@ -463,9 +472,7 @@
           button.className = "small";
           button.textContent = symbol;
           button.disabled = destination < 0 || destination >= order.length;
-          button.addEventListener("click", () => {
-            move(id, destination);
-          });
+          button.addEventListener("click", () => move(id, destination));
 
           moves.append(button);
         }
@@ -491,7 +498,15 @@
 
     function move(id, destination) {
       const source = order.indexOf(id);
-      if (source < 0 || destination < 0 || destination >= order.length || source === destination) return;
+
+      if (
+        source < 0 ||
+        destination < 0 ||
+        destination >= order.length ||
+        source === destination
+      ) {
+        return;
+      }
 
       order.splice(source, 1);
       order.splice(destination, 0, id);
@@ -534,7 +549,6 @@
       save();
     });
 
-    // Theme
     function applyTheme(theme) {
       document.documentElement.dataset.theme = theme;
       localStorage.setItem("theme", theme);
@@ -551,7 +565,6 @@
 
     document.getElementById("signin").addEventListener("click", () => {});
 
-    // Search and address bar
     const address = document.getElementById("address");
     const search = document.getElementById("search");
     const error = document.getElementById("error");
